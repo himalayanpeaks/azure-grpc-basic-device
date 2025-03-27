@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+option csharp_namespace = "OneDriver.PowerSupply.Basic.GrpcHost.Protos";
+package power;
+
+service PowerSupply {
+  rpc OpenConnection(OpenRequest) returns (StatusReply);
+  rpc SetVolts(SetRequest) returns (StatusReply);
+  rpc SetAmps(SetRequest) returns (StatusReply);
+  rpc AllChannelsOn(Empty) returns (StatusReply);
+  rpc AllChannelsOff(Empty) returns (StatusReply);
+}
+
+message OpenRequest {
+  string port = 1;
+}
+
+message SetRequest {
+  int32 channel = 1;
+  double value = 2;
+}
+
+message StatusReply {
+  int32 code = 1;
+  string message = 2;
+}
+
+message Empty {}

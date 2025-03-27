@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35806.99 d17.13
+VisualStudioVersion = 17.13.35806.99
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneDriver.PowerSupply.Basic", "OneDriver.PowerSupply.Basic\OneDriver.PowerSupply.Basic.csproj", "{26614644-60AB-4A0E-B45F-907B76280FAB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneDriver.PowerSupply.UnitTest", "OneDriver.PowerSupply.UnitTest\OneDriver.PowerSupply.UnitTest.csproj", "{AD634EC2-9961-4283-8497-718DEB3FA61D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneDriver.PowerSupply.Basic.GrpcHost", "OneDriver.PowerSupply.Basic.GrpcHost\OneDriver.PowerSupply.Basic.GrpcHost.csproj", "{9FF1026A-E2AB-51A4-B37B-41EECE2ABF86}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{AD634EC2-9961-4283-8497-718DEB3FA61D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AD634EC2-9961-4283-8497-718DEB3FA61D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AD634EC2-9961-4283-8497-718DEB3FA61D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9FF1026A-E2AB-51A4-B37B-41EECE2ABF86}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9FF1026A-E2AB-51A4-B37B-41EECE2ABF86}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9FF1026A-E2AB-51A4-B37B-41EECE2ABF86}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9FF1026A-E2AB-51A4-B37B-41EECE2ABF86}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
