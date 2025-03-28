@@ -15,11 +15,9 @@ namespace OneDriver.PowerSupply.Basic.GrpcHost.Services
     {
         private readonly Device _device;
 
-        public PowerSupplyService(ILogger<PowerSupplyService> logger)
+        public PowerSupplyService(Device device)
         {
-            var validator = new ComportValidator();
-            var hal = new Kd3005p();
-            _device = new Device("Korad", validator, hal);
+            _device = device;
         }
 
         public override Task<StatusReply> OpenConnection(OpenRequest request, ServerCallContext context)
