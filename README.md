@@ -26,3 +26,49 @@ Install via NuGet:
 
 ```bash
 dotnet add package OneDriver.PowerSupply.Basic
+
+Sure! Here's your gRPC command usage section written in clean, Markdown-style markup that you can drop directly into a `README.md`:
+
+---
+
+## 🔌 Power Supply Control via `grpcurl`
+
+Use `grpcurl` to control and monitor your power supply via the gRPC server running at `localhost:5248`.
+
+### ✅ Prerequisites
+- [grpcurl](https://github.com/fullstorydev/grpcurl/releases) installed
+- Server running at `http://localhost:5248`
+- Power supply connected to the correct COM port (e.g., `COM5`)
+
+---
+
+### 🔗 Open Connection
+
+```bash
+grpcurl -plaintext -d "{\"port\": \"COM5\"}" localhost:5248 power.PowerSupply/OpenConnection
+```
+
+> Opens a serial connection to the power supply on COM5.
+
+---
+
+### ⚡ Set Voltage
+
+```bash
+grpcurl -plaintext -d "{\"channel\": 0, \"value\": 7.92}" localhost:5248 power.PowerSupply/SetVolts
+```
+
+> Sets the voltage on channel 0 to **7.92V**.
+
+---
+
+### 📡 Stream Live Process Data
+
+```bash
+grpcurl -plaintext -d "{\"channelNumber\": 0}" localhost:5248 power.PowerSupply/StreamProcessData
+```
+
+> Streams real-time voltage and current data from **channel 0**.
+
+---
+
