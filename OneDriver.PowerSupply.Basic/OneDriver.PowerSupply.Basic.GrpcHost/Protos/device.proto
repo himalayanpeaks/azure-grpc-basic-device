@@ -9,6 +9,8 @@ service PowerSupply {
   rpc SetAmps(SetRequest) returns (StatusReply);
   rpc AllChannelsOn(Empty) returns (StatusReply);
   rpc AllChannelsOff(Empty) returns (StatusReply);
+  rpc StreamProcessData(StreamRequest) returns (stream ProcessDataReply);
+
 }
 
 message OpenRequest {
@@ -23,6 +25,14 @@ message SetRequest {
 message StatusReply {
   int32 code = 1;
   string message = 2;
+}
+message StreamRequest {
+    int32 channelNumber = 1;
+}
+message ProcessDataReply {
+    double voltage = 1;
+    double current = 2;
+    string timestamp = 3;
 }
 
 message Empty {}

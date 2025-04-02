@@ -14,13 +14,12 @@ namespace OneDriver.PowerSupply.Basic.Products
         {
             ComPort = new SerialPort
             {
-                ReadTimeout = 150,
+                ReadTimeout = 1000,
                 Parity = Parity.None,
                 DataBits = 8,
                 StopBits = StopBits.One,
                 BaudRate = 9600
             };
-            ComPort.ReadTimeout = 50;
             MaxCurrentInAmpere = 5;
             MaxVoltageInVolts = 30;
             NumberOfChannels = 1;
@@ -28,25 +27,27 @@ namespace OneDriver.PowerSupply.Basic.Products
             Identification = "KORAD KD3005P";
         }
 
-        protected override void FetchDataForTunnel(out InternalDataHAL data)
+        protected override void FetchDataForTunnel(ref InternalDataHAL data)
         {
-            data = new InternalDataHAL();
             for (var i = 0; i < NumberOfChannels; i++)
             {
-                Thread.Sleep(50);
                 GetActualVolts(i, out var volts);
-                Thread.Sleep(50);
                 GetActualAmps(i, out var amps);
-                data = new InternalDataHAL(i, volts, amps);
+                if(volts != prediousVolts || amps != prediousAmps)
+                    data = new InternalDataHAL(i, volts, amps);
+                prediousVolts = volts;
+                prediousAmps = amps;    
             }
         }
 
+        private double prediousVolts;
+        private double prediousAmps;
         public Framework.Module.Definition.DeviceError Read(out string readData)
         {
             readData = "";
             try
             {
-                ComPort.DiscardOutBuffer();
+                //ComPort.DiscardOutBuffer();
                 readData = ComPort.ReadLine().ToString(new CultureInfo("en-EN"));
             }
             catch (TimeoutException e)
@@ -73,6 +74,8 @@ namespace OneDriver.PowerSupply.Basic.Products
             {
                 ComPort.DiscardInBuffer();
                 ComPort.WriteLine(data);
+                Thread.Sleep(200);
+
             }
             catch (TimeoutException e)
             {
@@ -193,7 +196,7 @@ namespace OneDriver.PowerSupply.Basic.Products
 
             if (Write(command) is var err && err != Framework.Module.Definition.DeviceError.NoError)
                 return err;
-
+            
             if (Read(out var val) is var readErr && readErr != Framework.Module.Definition.DeviceError.NoError)
                 return readErr;
 
@@ -202,7 +205,21 @@ namespace OneDriver.PowerSupply.Basic.Products
             Log.Error(val + " : Invalid response from device.");
             return Framework.Module.Definition.DeviceError.InvalidResponse; 
         }
+        public Framework.Module.Definition.DeviceError GetActualAmps(double channelNumber, out double amps)
+        {
+            amps = 0;
+            string command = $"IOUT{channelNumber + 1}?";
 
+            if (Write(command) is var err && err != Framework.Module.Definition.DeviceError.NoError)
+                return err;
+            if (Read(out var val) is var readErr && readErr != Framework.Module.Definition.DeviceError.NoError)
+                return readErr;
+
+            if (double.TryParse(val, NumberStyles.Float, new CultureInfo("en-EN"), out amps))
+                return Framework.Module.Definition.DeviceError.NoError;
+            Log.Error(val + " : Invalid response from device.");
+            return Framework.Module.Definition.DeviceError.InvalidResponse;
+        }
 
         public Framework.Module.Definition.DeviceError SetDesiredAmps(double channelNumber, double amps)
         {
@@ -213,23 +230,6 @@ namespace OneDriver.PowerSupply.Basic.Products
             else
                 Write("OUT" + (channelNumber + 1));
             return Framework.Module.Definition.DeviceError.NoError;
-        }
-
-        public Framework.Module.Definition.DeviceError GetActualAmps(double channelNumber, out double amps)
-        {
-            amps = 0;
-            string command = $"IOUT{channelNumber + 1}?";
-
-            if (Write(command) is var err && err != Framework.Module.Definition.DeviceError.NoError)
-                return err;
-
-            if (Read(out var val) is var readErr && readErr != Framework.Module.Definition.DeviceError.NoError)
-                return readErr;
-
-            if (double.TryParse(val, NumberStyles.Float, new CultureInfo("en-EN"), out amps))
-                return Framework.Module.Definition.DeviceError.NoError;
-            Log.Error(val + " : Invalid response from device.");
-            return Framework.Module.Definition.DeviceError.InvalidResponse;
         }
 
         public Framework.Module.Definition.DeviceError AllOff()

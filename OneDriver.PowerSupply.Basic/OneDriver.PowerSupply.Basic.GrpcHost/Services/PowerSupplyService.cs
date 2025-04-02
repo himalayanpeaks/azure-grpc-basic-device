@@ -1,16 +1,10 @@
 using Grpc.Core;
-using Microsoft.Extensions.Logging;
-using OneDriver.PowerSupply.Basic;
-using OneDriver.PowerSupply.Basic.Products;
 using OneDriver.PowerSupply.Basic.GrpcHost.Protos;
-using OneDriver.Framework.Libs.Validator;
-using System.Threading.Tasks;
-using OneDriver.Framework.Libs;
 
 
 namespace OneDriver.PowerSupply.Basic.GrpcHost.Services
 {
-    public class PowerSupplyService : OneDriver.PowerSupply.Basic.GrpcHost.Protos.PowerSupply.PowerSupplyBase
+    public class PowerSupplyService : Protos.PowerSupply.PowerSupplyBase
 
     {
         private readonly Device _device;
@@ -69,5 +63,27 @@ namespace OneDriver.PowerSupply.Basic.GrpcHost.Services
                 Message = "All channels turned OFF."
             });
         }
+
+        public override async Task StreamProcessData(StreamRequest request, IServerStreamWriter<ProcessDataReply> responseStream, ServerCallContext context)
+        {
+            var channelNumber = request.ChannelNumber;
+
+            while (!context.CancellationToken.IsCancellationRequested)
+            {
+                var voltage = _device.Elements[channelNumber].ProcessData.Voltage;
+                var current = _device.Elements[channelNumber].ProcessData.Current;
+                var timestamp = _device.Elements[channelNumber].ProcessData.TimeStamp;
+
+                await responseStream.WriteAsync(new ProcessDataReply
+                {
+                    Voltage = voltage,
+                    Current = current,
+                    Timestamp = timestamp.ToLongTimeString() // ISO 8601 format
+                });
+
+                await Task.Delay(1000); // adjust as needed (e.g., every 500 ms)
+            }
+        }
+
     }
 }
