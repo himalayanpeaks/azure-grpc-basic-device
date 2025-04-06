@@ -73,7 +73,7 @@ namespace OneDriver.PowerSupply.Basic.Products
         {
             try
             {
-                ComPort.DiscardInBuffer();
+                //ComPort.DiscardInBuffer();
                 ComPort.WriteLine(data);
                 Thread.Sleep(300);
 
