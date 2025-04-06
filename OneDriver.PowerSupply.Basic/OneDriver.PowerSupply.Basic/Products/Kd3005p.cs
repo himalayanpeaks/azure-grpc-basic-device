@@ -47,8 +47,9 @@ namespace OneDriver.PowerSupply.Basic.Products
             readData = "";
             try
             {
-                //ComPort.DiscardOutBuffer();
+                ComPort.DiscardOutBuffer();
                 readData = ComPort.ReadLine().ToString(new CultureInfo("en-EN"));
+                Thread.Sleep(300);
             }
             catch (TimeoutException e)
             {
@@ -74,7 +75,7 @@ namespace OneDriver.PowerSupply.Basic.Products
             {
                 ComPort.DiscardInBuffer();
                 ComPort.WriteLine(data);
-                Thread.Sleep(200);
+                Thread.Sleep(300);
 
             }
             catch (TimeoutException e)

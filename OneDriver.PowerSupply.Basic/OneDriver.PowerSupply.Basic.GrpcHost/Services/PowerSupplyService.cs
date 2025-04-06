@@ -1,17 +1,20 @@
 using Grpc.Core;
 using OneDriver.PowerSupply.Basic.GrpcHost.Protos;
-
+using Microsoft.Azure.Devices.Client;
+using Newtonsoft.Json;
+using System.Text;
 
 namespace OneDriver.PowerSupply.Basic.GrpcHost.Services
 {
     public class PowerSupplyService : Protos.PowerSupply.PowerSupplyBase
-
     {
         private readonly Device _device;
+        private readonly DeviceClient _deviceClient;
 
-        public PowerSupplyService(Device device)
+        public PowerSupplyService(Device device, DeviceClient deviceClient)
         {
             _device = device;
+            _deviceClient = deviceClient;
         }
 
         public override Task<StatusReply> OpenConnection(OpenRequest request, ServerCallContext context)
@@ -74,16 +77,30 @@ namespace OneDriver.PowerSupply.Basic.GrpcHost.Services
                 var current = _device.Elements[channelNumber].ProcessData.Current;
                 var timestamp = _device.Elements[channelNumber].ProcessData.TimeStamp;
 
+                // Original correct streaming logic
                 await responseStream.WriteAsync(new ProcessDataReply
                 {
                     Voltage = voltage,
                     Current = current,
-                    Timestamp = timestamp.ToLongTimeString() // ISO 8601 format
+                    Timestamp = timestamp.ToString("o") // Correct ISO 8601 format
                 });
 
-                await Task.Delay(1000); // adjust as needed (e.g., every 500 ms)
+                // Correct telemetry logic for Azure IoT
+                var telemetryData = new
+                {
+                    channel = channelNumber,
+                    voltage,
+                    current,
+                    timestamp = timestamp.ToString("o") // Device timestamp
+                };
+
+                var json = JsonConvert.SerializeObject(telemetryData);
+                var message = new Message(Encoding.UTF8.GetBytes(json));
+
+                await _deviceClient.SendEventAsync(message);
+
+                await Task.Delay(1000); // Adjust frequency as needed
             }
         }
-
     }
 }

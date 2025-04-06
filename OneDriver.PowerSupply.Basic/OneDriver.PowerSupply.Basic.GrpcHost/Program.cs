@@ -1,3 +1,4 @@
+using Microsoft.Azure.Devices.Client;
 using OneDriver.PowerSupply.Basic;
 using OneDriver.PowerSupply.Basic.Products;
 using OneDriver.PowerSupply.Basic.GrpcHost.Services;
@@ -5,9 +6,19 @@ using OneDriver.Framework.Libs.Validator;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Register gRPC services
 builder.Services.AddGrpc();
 builder.Services.AddGrpcReflection();
+
+Console.WriteLine("Enter your Azure IoT device connection string:");
+string deviceConnectionString = Console.ReadLine();
+
+
+builder.Services.AddSingleton<DeviceClient>(provider =>
+{
+    var client = DeviceClient.CreateFromConnectionString(deviceConnectionString, TransportType.Mqtt);
+    client.OpenAsync().GetAwaiter().GetResult();
+    return client;
+});
 
 builder.Services.AddSingleton<Device>(provider =>
 {
@@ -19,8 +30,8 @@ builder.Services.AddSingleton<Device>(provider =>
 var app = builder.Build();
 
 app.MapGrpcService<PowerSupplyService>();
-app.MapGrpcReflectionService(); // allows grpcurl to work
+app.MapGrpcReflectionService();
 
-app.MapGet("/", () => "Use a gRPC client like grpcurl to talk to this server.");
+app.MapGet("/", () => "Use a gRPC client to communicate.");
 
 app.Run();
